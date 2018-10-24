@@ -1,0 +1,13 @@
+[Unit]
+Description=The webserver for bg-mentor
+Documentation=https://github.com/bcokert/bg-mentor
+
+[Service]
+Type=simple
+PIDFile=/run/bg-mentor.pid
+ExecStart=/opt/bg-mentor/webserver --production
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s QUIT $MAINPID
+
+[Install]
+WantedBy=multi-user.target

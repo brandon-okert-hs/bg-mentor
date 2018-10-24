@@ -1,0 +1,8 @@
+artifact/*
+.vscode
+.terraform
+
+frontend/node_modules
+.secrets-decrypted/*
+
+.plans/*
