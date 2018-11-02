@@ -8,13 +8,16 @@ ARTIFACT_DIR := artifact
 
 ifneq ($(env),dev)
 ifneq ($(env),production)
-$(error env must be set to dev or production, like 'make target env=dev')
+ifneq ($(env),local)
+$(error env must be set to local, dev, or production, like 'make target env=dev')
+endif
 endif
 endif
 
-WEBPACK_ENV=development
-ifeq ($(env),production)
-WEBPACK_ENV=production
+WEBPACK_CMD=yarn --cwd frontend webpack --env.SERVER_ENV=$(env) --config webpack.config.js --progress
+BUILD_CMD=env GOOS=linux GOARCH=amd64 go build
+ifeq ($(env),local)
+BUILD_CMD=go build
 endif
 
 .PHONY: decrypt-secrets
@@ -31,22 +34,24 @@ deps:
 watch-frontend:
 	rm -rf $(ARTIFACT_DIR)/$(env)/static
 	mkdir -p $(ARTIFACT_DIR)/$(env)/static
-	yarn --cwd frontend webpack --env.$(WEBPACK_ENV) --config webpack.config.js --progress --watch
+	$(WEBPACK_CMD) --watch
 
-build: clean build-webserver build-frontend
+build: build-webserver build-frontend
 
 build-webserver:
 	rm -rf $(ARTIFACT_DIR)/$(env)/webserver
 	mkdir -p $(ARTIFACT_DIR)/$(env)
-	env GOOS=linux GOARCH=amd64 go build -o $(ARTIFACT_DIR)/$(env)/webserver ./cmd/webserver
+	$(BUILD_CMD) -o $(ARTIFACT_DIR)/$(env)/webserver ./cmd/webserver
 
 build-frontend:
 	rm -rf $(ARTIFACT_DIR)/$(env)/static
 	mkdir -p $(ARTIFACT_DIR)/$(env)/static
-	yarn --cwd frontend webpack --env.$(env) --config webpack.config.js --progress
+	$(WEBPACK_CMD)
 
+# Runs locally, but simulates the environment that would be deployed
+# Will not work in envs other than local if local machine is not the same os as deploy machines
 run:
-	$(ARTIFACT_DIR)/$(env)/webserver
+	$(ARTIFACT_DIR)/$(env)/webserver $(DEPLOY_DIR)/files/$(env)/etc/bg-mentor
 
 decrypt-secrets:
 	rm -rf $(DECRYPTED_SECRETS_DIR)/$(env)

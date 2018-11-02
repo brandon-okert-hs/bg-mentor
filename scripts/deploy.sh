@@ -5,6 +5,7 @@ PROD_HOST="ubuntu@bg.brandonokert.com"
 SERVICE_NAME="bg-mentor"
 
 ENV=$1
+ENV_NAME="dev"
 
 if [ "${ENV}" != "dev" ] && [ "${ENV}" != "production" ]; then
     echo "First arg must be the environment, one of 'dev' or 'production'"
@@ -13,10 +14,12 @@ fi
 
 if [ "${ENV}" == "production" ]; then
     HOST="${PROD_HOST}"
+    ENV_NAME="production"
 fi
 
 if [ "${ENV}" == "dev" ]; then
     HOST="${DEV_HOST}"
+    ENV_NAME="production"
 fi
 
 ssh -i .secrets-decrypted/${ENV}/deploy-key.pem ${HOST} <<'EOF'
@@ -39,8 +42,9 @@ sudo rm -rf /opt/${SERVICE_NAME}
 
 echo -e "\n>>>copy over new artifact, and any file updates"
 sudo mkdir -p /opt/${SERVICE_NAME}/
-sudo cp -r ~/artifact/* /opt/${SERVICE_NAME}/
-sudo cp -r ~/files/* /
+sudo cp -r ~/artifact/${ENV_NAME}/* /opt/${SERVICE_NAME}/
+sudo cp -r ~/files/all/* /
+sudo cp -r ~/files/${ENV_NAME}/* /
 
 echo -e "\n>>>cleanup after deploy"
 rm -rf ~/artifact

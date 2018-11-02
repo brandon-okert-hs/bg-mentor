@@ -5,7 +5,7 @@ Documentation=https://github.com/bcokert/bg-mentor
 [Service]
 Type=simple
 PIDFile=/run/bg-mentor.pid
-ExecStart=/opt/bg-mentor/webserver --production
+ExecStart=/opt/bg-mentor/webserver /etc/bg-mentor
 ExecReload=/bin/kill -s HUP $MAINPID
 ExecStop=/bin/kill -s QUIT $MAINPID
 

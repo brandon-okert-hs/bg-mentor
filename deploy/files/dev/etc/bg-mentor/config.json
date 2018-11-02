@@ -1,0 +1,7 @@
+{
+    "env": "dev",
+    "server": {
+        "address": ":8080",
+        "staticFileRoot": "/opt/bodyweight-routine/static/"
+    }
+}
