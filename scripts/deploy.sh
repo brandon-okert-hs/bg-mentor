@@ -10,8 +10,8 @@ function info {
   echo -e "\n\x1B[34m$1\x1b[0m"
 }
 
-DEV_HOST="ubuntu@dev-borngosugaming.com"
-PROD_HOST="ubuntu@100.24.215.87"
+DEV_HOST="ubuntu@dev.borngosugaming.com"
+PROD_HOST="ubuntu@borngosugaming.com"
 SERVICE_NAME="bg-mentor"
 
 ENV=$1
