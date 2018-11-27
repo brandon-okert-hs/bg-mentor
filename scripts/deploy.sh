@@ -1,11 +1,20 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -e
 
-DEV_HOST="ubuntu@bg-dev.brandonokert.com"
-PROD_HOST="ubuntu@bg.brandonokert.com"
+function error {
+  echo -e "\n\x1B[31m$1\x1b[0m"
+  exit 1
+}
+
+function info {
+  echo -e "\n\x1B[34m$1\x1b[0m"
+}
+
+DEV_HOST="ubuntu@dev-borngosugaming.com"
+PROD_HOST="ubuntu@100.24.215.87"
 SERVICE_NAME="bg-mentor"
 
 ENV=$1
-ENV_NAME="dev"
 
 if [ "${ENV}" != "dev" ] && [ "${ENV}" != "production" ]; then
     echo "First arg must be the environment, one of 'dev' or 'production'"
@@ -14,47 +23,54 @@ fi
 
 if [ "${ENV}" == "production" ]; then
     HOST="${PROD_HOST}"
-    ENV_NAME="production"
 fi
 
 if [ "${ENV}" == "dev" ]; then
     HOST="${DEV_HOST}"
-    ENV_NAME="production"
 fi
 
-ssh -i .secrets-decrypted/${ENV}/deploy-key.pem ${HOST} <<'EOF'
-echo ">>>cleanup past deploy failures"
+info "deploying to '${ENV}' (${HOST})"
+
+info "cleanup past deploy failures"
+ssh -T -i .secrets-decrypted/${ENV}/deploy-key.pem ${HOST} <<-EOF
 rm -rf ~/artifact
 rm -rf ~/files
 EOF
 
-echo -e "\n>>>copy over new artifacts and files to server"
+info "copy over new artifacts and files to server"
 scp -i .secrets-decrypted/${ENV}/deploy-key.pem -r artifact ${HOST}:~/artifact
 scp -i .secrets-decrypted/${ENV}/deploy-key.pem -r deploy/files ${HOST}:~/files
 
-ssh -i .secrets-decrypted/${ENV}/deploy-key.pem ${HOST} <<'EOF'
-echo -e "\n>>>stop service, and remove old artifact"
-if [[ "$(systemctl status | grep ${SERVICE_NAME}.service | grep -v grep)" != "" ]]; then
+info "stop service, and remove old artifact"
+ssh -T -i .secrets-decrypted/${ENV}/deploy-key.pem ${HOST} <<-EOF
+if [[ "\$(systemctl status | grep ${SERVICE_NAME}.service | grep -v grep)" != "" ]]; then
     sudo systemctl stop ${SERVICE_NAME}
 fi
-sudo systemctl stop ${SERVICE_NAME}
 sudo rm -rf /opt/${SERVICE_NAME}
+EOF
 
-echo -e "\n>>>copy over new artifact, and any file updates"
+info "copy over new artifact, and any file updates"
+ssh -T -i .secrets-decrypted/${ENV}/deploy-key.pem ${HOST} <<-EOF
 sudo mkdir -p /opt/${SERVICE_NAME}/
-sudo cp -r ~/artifact/${ENV_NAME}/* /opt/${SERVICE_NAME}/
+sudo cp -r ~/artifact/${ENV}/* /opt/${SERVICE_NAME}/
 sudo cp -r ~/files/all/* /
-sudo cp -r ~/files/${ENV_NAME}/* /
+sudo cp -r ~/files/${ENV}/* /
+EOF
 
-echo -e "\n>>>cleanup after deploy"
+info "cleanup after deploy"
+ssh -T -i .secrets-decrypted/${ENV}/deploy-key.pem ${HOST} <<-EOF
 rm -rf ~/artifact
 rm -rf ~/files
+EOF
 
-echo -e "\n>>>tell systemd to keep our service up if it doesn't already"
-if [[ "$(systemctl status | grep ${SERVICE_NAME}.service | grep -v grep)" == "" ]]; then
+info "tell systemd to keep our service up if it doesn't already"
+ssh -T -i .secrets-decrypted/${ENV}/deploy-key.pem ${HOST} <<-EOF
+if [[ "\$(systemctl status | grep ${SERVICE_NAME}.service | grep -v grep)" == "" ]]; then
     sudo systemctl enable ${SERVICE_NAME}
 fi
+EOF
 
-echo -e "\n>>>start our service"
+info "start our service"
+ssh -T -i .secrets-decrypted/${ENV}/deploy-key.pem ${HOST} <<-EOF
 sudo systemctl start ${SERVICE_NAME}
 EOF

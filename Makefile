@@ -25,11 +25,15 @@ endif
 clean:
 	rm -rf $(ARTIFACT_DIR)
 	rm -rf $(DECRYPTED_SECRETS_DIR)
+	rm -rf coverage.out
 
 deps:
 	go get .
 	go get -t
 	yarn --cwd $(FRONTEND_DIR) install
+
+coverage:
+	go test -covermode=count -coverprofile=coverage.out && go tool cover -html=coverage.out
 
 watch-frontend:
 	rm -rf $(ARTIFACT_DIR)/$(env)/static
@@ -53,14 +57,23 @@ build-frontend:
 run:
 	$(ARTIFACT_DIR)/$(env)/webserver $(DEPLOY_DIR)/files/$(env)/etc/bg-mentor
 
-decrypt-secrets:
-	rm -rf $(DECRYPTED_SECRETS_DIR)/$(env)
-	mkdir -p $(DECRYPTED_SECRETS_DIR)/$(env)
-	ansible-vault decrypt $(SECRETS_DIR)/$(env)/deploy-key.pem.secret --output $(DECRYPTED_SECRETS_DIR)/$(env)/deploy-key.pem
-	ansible-vault decrypt $(SECRETS_DIR)/$(env)/terraform-aws-credentials.secret --output $(DECRYPTED_SECRETS_DIR)/$(env)/terraform-aws-credentials
-	(sleep 1800 && rm -rf $(DECRYPTED_SECRETS_DIR)/$(env) &)
+decrypt-secrets-deploy:
+	@mkdir -p $(DECRYPTED_SECRETS_DIR)/$(env)
+ifeq ("","$(wildcard $(DECRYPTED_SECRETS_DIR)/$(env)/deploy-key.pem)")
+	@echo "Decrypting Deploy Secrets. You'll need permission."
+	@ansible-vault decrypt $(SECRETS_DIR)/$(env)/deploy-key.pem.secret --output $(DECRYPTED_SECRETS_DIR)/$(env)/deploy-key.pem
+	@(sleep 1800 && rm -rf $(DECRYPTED_SECRETS_DIR)/$(env)/deploy-key.pem &)
+endif
 
-init-infra: decrypt-secrets
+decrypt-secrets-infra:
+	@mkdir -p $(DECRYPTED_SECRETS_DIR)/$(env)
+ifeq ("","$(wildcard $(DECRYPTED_SECRETS_DIR)/$(env)/terraform-aws-credentials)")
+	@echo "Decrypting Infra Secrets. You'll need permission."
+	@ansible-vault decrypt $(SECRETS_DIR)/$(env)/terraform-aws-credentials.secret --output $(DECRYPTED_SECRETS_DIR)/$(env)/terraform-aws-credentials
+	@(sleep 1800 && rm -rf $(DECRYPTED_SECRETS_DIR)/$(env)/terraform-aws-credentials &)
+endif
+
+init-infra: decrypt-secrets-infra
 	terraform init $(TERRAFORM_DIR)/$(env)
 
 plan-infra: init-infra
@@ -70,5 +83,5 @@ plan-infra: init-infra
 apply-infra: init-infra
 	terraform apply $(PLANS_DIR)/$(env)/plan
 
-deploy: decrypt-secrets
+deploy: decrypt-secrets-deploy
 	./scripts/deploy.sh $(env)

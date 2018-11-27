@@ -1,6 +1,9 @@
 artifact/*
 .vscode
+.idea/
+*.iml
 .terraform
+/coverage.out
 
 frontend/node_modules
 .secrets-decrypted/*

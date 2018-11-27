@@ -1,7 +1,7 @@
 {
     "env": "production",
     "server": {
-        "address": ":8080",
-        "staticFileRoot": "/opt/bodyweight-routine/static/"
+        "address": ":80",
+        "staticFileRoot": "/opt/bg-mentor/static/"
     }
 }
