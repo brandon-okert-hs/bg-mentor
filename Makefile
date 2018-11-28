@@ -2,6 +2,7 @@ FRONTEND_DIR := frontend
 DEPLOY_DIR := deploy
 TERRAFORM_DIR := $(DEPLOY_DIR)/terraform
 SECRETS_DIR := $(DEPLOY_DIR)/secrets
+CONFIG_DIR := $(DEPLOY_DIR)/files/$(env)/etc/bg-mentor
 DECRYPTED_SECRETS_DIR := .secrets-decrypted
 PLANS_DIR := .plans
 ARTIFACT_DIR := artifact
@@ -59,6 +60,11 @@ run:
 
 decrypt-secrets-deploy:
 	@mkdir -p $(DECRYPTED_SECRETS_DIR)/$(env)
+ifeq ("","$(wildcard $(CONFIG_DIR)/config.json)")
+	@echo "Decrypting Deploy Configuration Secrets. You'll need permission."
+	@ansible-vault decrypt $(CONFIG_DIR)/config.json.secret --output $(CONFIG_DIR)/config.json
+	@(sleep 1800 && rm -rf $(CONFIG_DIR)/config.json.secret &)
+endif
 ifeq ("","$(wildcard $(DECRYPTED_SECRETS_DIR)/$(env)/deploy-key.pem)")
 	@echo "Decrypting Deploy Secrets. You'll need permission."
 	@ansible-vault decrypt $(SECRETS_DIR)/$(env)/deploy-key.pem.secret --output $(DECRYPTED_SECRETS_DIR)/$(env)/deploy-key.pem

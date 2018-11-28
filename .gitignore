@@ -7,5 +7,8 @@ artifact/*
 
 frontend/node_modules
 .secrets-decrypted/*
+deploy/files/local/etc/bg-mentor/config.json
+deploy/files/dev/etc/bg-mentor/config.json
+deploy/files/production/etc/bg-mentor/config.json
 
 .plans/*
