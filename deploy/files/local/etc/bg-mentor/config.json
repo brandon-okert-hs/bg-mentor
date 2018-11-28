@@ -1,7 +1,0 @@
-{
-    "env": "local",
-    "server": {
-        "address": ":8080",
-        "staticFileRoot": "./artifact/local/static/"
-    }
-}

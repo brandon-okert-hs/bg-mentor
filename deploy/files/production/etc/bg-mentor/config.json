@@ -1,7 +1,0 @@
-{
-    "env": "production",
-    "server": {
-        "address": ":80",
-        "staticFileRoot": "/opt/bg-mentor/static/"
-    }
-}
