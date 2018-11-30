@@ -15,6 +15,23 @@ endif
 endif
 endif
 
+TUNNEL_HOST=""
+DB_NAME=""
+MIGRATION_USER=""
+DB_HOST=""
+ifeq ($(env),dev)
+TUNNEL_HOST=dev.borngosugaming.com
+DB_NAME=borngosu_dev
+MIGRATION_USER=migrations-dev
+DB_HOST=borngosudb-production-0.caqyd4okx8bs.us-east-1.rds.amazonaws.com
+endif
+ifeq ($(env),production)
+TUNNEL_HOST=borngosugaming.com
+DB_NAME=borngosu
+MIGRATION_USER=migrations
+DB_HOST=borngosudb-production-0.caqyd4okx8bs.us-east-1.rds.amazonaws.com
+endif
+
 WEBPACK_CMD=yarn --cwd frontend webpack --env.SERVER_ENV=$(env) --config webpack.config.js --progress
 BUILD_CMD=env GOOS=linux GOARCH=amd64 go build
 ifeq ($(env),local)
@@ -63,7 +80,7 @@ decrypt-secrets-deploy:
 ifeq ("","$(wildcard $(CONFIG_DIR)/config.json)")
 	@echo "Decrypting Deploy Configuration Secrets. You'll need permission."
 	@ansible-vault decrypt $(CONFIG_DIR)/config.json.secret --output $(CONFIG_DIR)/config.json
-	@(sleep 1800 && rm -rf $(CONFIG_DIR)/config.json.secret &)
+	@(sleep 1800 && rm -rf $(CONFIG_DIR)/config.json &)
 endif
 ifeq ("","$(wildcard $(DECRYPTED_SECRETS_DIR)/$(env)/deploy-key.pem)")
 	@echo "Decrypting Deploy Secrets. You'll need permission."
@@ -88,6 +105,19 @@ plan-infra: init-infra
 
 apply-infra: init-infra
 	terraform apply $(PLANS_DIR)/$(env)/plan
+
+tunnel-db: decrypt-secrets-deploy
+ifeq ($(env),local)
+	@echo "Cannot tunnel to local db. Local test server uses dev db"
+	exit 1
+endif
+	ssh -i ${DECRYPTED_SECRETS_DIR}/$(env)/deploy-key.pem ubuntu@$(TUNNEL_HOST) -L 3307:$(DB_HOST):3306 -N
+
+baseline-db:
+	flyway -user="$(MIGRATION_USER)" -locations="filesystem:$(shell pwd)/deploy/db/migrations" -url='jdbc:mysql://127.0.0.1:3307/$(DB_NAME)' -baselineVersion='0' baseline
+
+migrate-db:
+	flyway -user="$(MIGRATION_USER)" -locations="filesystem:$(shell pwd)/deploy/db/migrations" -url='jdbc:mysql://127.0.0.1:3307/$(DB_NAME)' migrate
 
 deploy: decrypt-secrets-deploy
 	./scripts/deploy.sh $(env)

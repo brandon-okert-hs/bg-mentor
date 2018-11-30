@@ -12,6 +12,7 @@ type RootHandler struct {
 	StaticFileRoot string
 	StatusHandler  *StatusHandler
 	StaticHandler  *StaticHandler
+	AuthHandler    *AuthHandler
 }
 
 func (h *RootHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
@@ -26,6 +27,9 @@ func (h *RootHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		return
 	case "status":
 		h.StatusHandler.ServeHTTP(res, req)
+		return
+	case "auth":
+		h.AuthHandler.ServeHTTP(res, req)
 		return
 	default:
 		RespondJSON("Root", http.StatusNotFound, requesterror.PathNotFound("Root", head, req), res)

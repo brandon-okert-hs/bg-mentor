@@ -1,11 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 
+	"github.com/bcokert/bg-mentor/internal/pkg/database"
 	"github.com/bcokert/bg-mentor/internal/pkg/handler"
+	"github.com/go-sql-driver/mysql"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
@@ -42,7 +45,22 @@ func main() {
 		"env", env,
 		"address", address,
 		"staticFileRoot", staticFileRoot,
+		"domain", config.GetString("server.domain"),
 	)
+
+	// Setup DB
+	database.SetDBLogger(logger)
+	database, err := database.NewDatabase("mysql", mysql.Config{
+		User:                 config.GetString("database.user"),
+		Passwd:               config.GetString("database.password"),
+		Addr:                 fmt.Sprintf("%s:%s", config.GetString("database.host"), config.GetString("database.port")),
+		DBName:               config.GetString("database.name"),
+		Net:                  config.GetString("database.protocol"),
+		AllowNativePasswords: true,
+	})
+	if err != nil {
+		log.Fatalf("Error setting up database: %v", err)
+	}
 
 	// Load Handlers and start server
 	handler.SetRequestLogger(logger)
@@ -52,6 +70,17 @@ func main() {
 		StaticHandler: &handler.StaticHandler{
 			StaticFileRoot: staticFileRoot,
 			FileServer:     http.FileServer(http.Dir(staticFileRoot)),
+		},
+		AuthHandler: &handler.AuthHandler{
+			AuthConfig: &handler.Auth0Config{
+				Domain:          config.GetString("auth0.domain"),
+				ClientID:        config.GetString("auth0.clientId"),
+				ClientSecret:    config.GetString("auth0.clientSecret"),
+				RedirectURLRoot: "http://" + config.GetString("server.domain") + address,
+				JWTSecret:       []byte(config.GetString("jwtSecret")),
+				CookieName:      config.GetString("auth0.cookieName"),
+			},
+			DB: database,
 		},
 	}
 	log.Fatal(http.ListenAndServe(address, rootHandler))

@@ -53,6 +53,13 @@ $ ansible-vault --version
 ansible-vault 2.5.0
 ```
 
+Install [flyway](https://flywaydb.org/)
+I just brew installed the latest version
+```bash
+$ flyway -v
+Flyway Community Edition 5.2.1 by Boxfuse
+```
+
 ### Building
 
 ```bash
@@ -90,4 +97,34 @@ $ make apply-infra env=dev # or env=production
 ```bash
 $ make build env=dev # or env=production
 $ make deploy env=dev # or env=production
+```
+
+### Manual DB provisioning
+
+Almost everything is automated via terraform and deploys. However, after terraforming, the admin password needs to be changed, and the app users and migrations users need to be created.
+
+First run the tunnel
+`make tunnel-db env=production`
+
+Then change the admin password
+```sql
+set password for admin@'%' = PASSWORD('<password>')
+```
+
+Then create the dev db and users
+
+```sql
+create database borngosu_dev;
+
+create user 'bguser'@'%' identified by '<password>';
+grant INSERT,SELECT,UPDATE,DELETE on borngosu.* to 'bguser'@'%';
+
+create user 'bguser-dev'@'%' identified by '<password>';
+grant INSERT,SELECT,UPDATE,DELETE on borngosu_dev.* to 'bguser-dev'@'%';
+
+create user 'migrations'@'%' identified by '<password>';
+grant INSERT,SELECT,UPDATE,DELETE,CREATE,DROP,INDEX,ALTER,LOCK TABLES on borngosu.* to 'migrations'@'%';
+
+create user 'migrations-dev'@'%' identified by '<password>';
+grant INSERT,SELECT,UPDATE,DELETE,CREATE,DROP,INDEX,ALTER,LOCK TABLES on borngosu_dev.* to 'migrations-dev'@'%';
 ```

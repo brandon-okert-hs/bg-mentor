@@ -50,6 +50,15 @@ resource "aws_subnet" "d" {
   }
 }
 
+resource "aws_db_subnet_group" "main" {
+  name       = "${var.name_root}-${var.env}"
+  subnet_ids = ["${aws_subnet.b.id}", "${aws_subnet.d.id}"]
+
+  tags {
+    Name = "${var.name_root}-${var.env}"
+  }
+}
+
 resource "aws_internet_gateway" "main" {
   vpc_id = "${aws_vpc.main.id}"
 
@@ -119,6 +128,30 @@ resource "aws_security_group" "ssh" {
   }
 }
 
+resource "aws_security_group" "db" {
+  name        = "${var.name_root}-db-${var.env}"
+  description = "Allow db access"
+  vpc_id      = "${aws_vpc.main.id}"
+
+  ingress {
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = ["${var.subnet_cidrs["b"]}", "${var.subnet_cidrs["d"]}"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags {
+    Name = "${var.name_root}-${var.env}"
+  }
+}
+
 resource "aws_default_network_acl" "main" {
   default_network_acl_id = "${aws_vpc.main.default_network_acl_id}"
 
@@ -152,10 +185,18 @@ output "subnet_ids" {
   }
 }
 
+output "subnet_group_id" {
+  value = "${aws_db_subnet_group.main.id}"
+}
+
 output "webserver_security_group_id" {
   value = "${aws_security_group.webserver.id}"
 }
 
 output "ssh_security_group_id" {
   value = "${aws_security_group.ssh.id}"
+}
+
+output "db_security_group_id" {
+  value = "${aws_security_group.db.id}"
 }

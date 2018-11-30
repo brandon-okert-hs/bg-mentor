@@ -68,3 +68,16 @@ module "webserver_b" {
   volume_size        = "${var.webserver_volume_size}"
   private_ip         = "${var.webserver_ips["b"]}"
 }
+
+module "database" {
+  source = "../modules/webserverdb"
+
+  security_group_ids = ["${module.vpc.db_security_group_id}"]
+  name_root           = "${var.name_root}"
+  db_count            = "${var.db_count}"
+  env                 = "${var.env}"
+  db_name             = "${var.db_name}"
+  db_class            = "${var.db_class}"
+  db_default_username = "${var.db_default_username}"
+  db_default_password = "${var.db_default_password}"
+}

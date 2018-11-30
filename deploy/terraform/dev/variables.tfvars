@@ -19,3 +19,9 @@ webserver_ips = {
   b = "10.10.0.5"
   d = "10.10.128.5"
 }
+
+db_count = "1"
+db_name = "borngosudb"
+db_class = "db.t2.small"
+db_default_username = "admin"
+db_default_password = "iG6ldRWO9MQROdE4BXmKHYh9u5OcuQdSMaDK"
