@@ -62,6 +62,16 @@ func main() {
 		log.Fatalf("Error setting up database: %v", err)
 	}
 
+	// Setup authentication config
+	authConfig := handler.Auth0Config{
+		Domain:          config.GetString("auth0.domain"),
+		ClientID:        config.GetString("auth0.clientId"),
+		ClientSecret:    config.GetString("auth0.clientSecret"),
+		RedirectURLRoot: "http://" + config.GetString("server.domain") + address,
+		JWTSecret:       []byte(config.GetString("jwtSecret")),
+		CookieName:      config.GetString("auth0.cookieName"),
+	}
+
 	// Load Handlers and start server
 	handler.SetRequestLogger(logger)
 	rootHandler := &handler.RootHandler{
@@ -72,16 +82,12 @@ func main() {
 			FileServer:     http.FileServer(http.Dir(staticFileRoot)),
 		},
 		AuthHandler: &handler.AuthHandler{
-			AuthConfig: &handler.Auth0Config{
-				Domain:          config.GetString("auth0.domain"),
-				ClientID:        config.GetString("auth0.clientId"),
-				ClientSecret:    config.GetString("auth0.clientSecret"),
-				RedirectURLRoot: "http://" + config.GetString("server.domain") + address,
-				JWTSecret:       []byte(config.GetString("jwtSecret")),
-				CookieName:      config.GetString("auth0.cookieName"),
-			},
-			DB: database,
+			AuthConfig: &authConfig,
+			DB:         database,
 		},
+		MemberHandler: handler.Authenticated(&handler.MemberHandler{
+			DB: database,
+		}, &authConfig),
 	}
 	log.Fatal(http.ListenAndServe(address, rootHandler))
 }

@@ -23,7 +23,7 @@ func GetMemberEmailFromContext(ctx context.Context) (string, error) {
 	return email, nil
 }
 
-func getEmailFromToken(jwtToken string, authConfig Auth0Config) (string, error) {
+func getEmailFromToken(jwtToken string, authConfig *Auth0Config) (string, error) {
 	// Parse token and verify it has the correct algorithm.
 	// The parser takes a function that validates the public metadata and then returns the token secret
 	// Thus the public information must be correct before the private token is unpacked with the secret
@@ -68,7 +68,7 @@ func clearCookie(w http.ResponseWriter, cookieName string) {
 	})
 }
 
-func Authenticated(next http.Handler, authConfig Auth0Config) http.Handler {
+func Authenticated(next http.Handler, authConfig *Auth0Config) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var err error
 
@@ -77,8 +77,10 @@ func Authenticated(next http.Handler, authConfig Auth0Config) http.Handler {
 		cookie, err = r.Cookie(authConfig.CookieName)
 		if err == http.ErrNoCookie {
 			id := LogId()
-			logger.Debugw("No cookie found when authenticating user for request. Assuming they just need to login.", "CookieName", authConfig.CookieName, "id", id)
-			http.Redirect(w, r, "/auth/login", http.StatusFound)
+			logger.Infow("No cookie found when authenticating user for request. Assuming they just need to login.", "CookieName", authConfig.CookieName, "id", id)
+
+			w.WriteHeader(http.StatusUnauthorized)
+			fmt.Fprintf(w, "You need to login before performing this action")
 			return
 		}
 		if err != nil {

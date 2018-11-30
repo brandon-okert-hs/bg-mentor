@@ -81,7 +81,7 @@ func (db *Database) CreateMemberIfNotExisting(post *model.MemberPost) (*model.Me
 	}
 
 	member, err := db.GetMember(post.Email)
-	if err.Error() == fmt.Sprintf("Did not find member with email '%v'", post.Email) {
+	if err != nil && err.Error() == fmt.Sprintf("Did not find member with email '%v'", post.Email) {
 		return db.CreateMember(post)
 	}
 	if err != nil {

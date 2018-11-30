@@ -205,7 +205,7 @@ func (h *AuthHandler) GetConfirm(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Add the email to the token
-	token := jwt.New(jwt.SigningMethodHS256)
+	token := jwt.New(jwt.SigningMethodHS512)
 	claims := token.Claims.(jwt.MapClaims)
 	claims["email"] = email
 	tokenString, err := token.SignedString(h.AuthConfig.JWTSecret)
@@ -231,7 +231,7 @@ func (h *AuthHandler) GetConfirm(w http.ResponseWriter, r *http.Request) {
 
 func (h *AuthHandler) GetLogout(w http.ResponseWriter, r *http.Request) {
 	var URL *url.URL
-	URL, err := URL.Parse("https://" + h.AuthConfig.Domain)
+	URL, err := URL.Parse("https://" + h.AuthConfig.Domain + "/v2/logout")
 	if err != nil {
 		id := LogId()
 		logger.Errorw("Logout error while creating url for logout", "error", err, "domain", h.AuthConfig.Domain, "id", id)
@@ -239,11 +239,12 @@ func (h *AuthHandler) GetLogout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	URL.Path += "/v2/logout"
 	parameters := url.Values{}
 	parameters.Add("returnTo", h.AuthConfig.RedirectURLRoot+"/")
 	parameters.Add("client_id", h.AuthConfig.ClientID)
 	URL.RawQuery = parameters.Encode()
+
+	clearCookie(w, h.AuthConfig.CookieName)
 
 	http.Redirect(w, r, URL.String(), http.StatusTemporaryRedirect)
 }

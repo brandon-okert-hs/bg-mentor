@@ -1,4 +1,5 @@
 FRONTEND_DIR := frontend
+ASSETS_DIR := assets
 DEPLOY_DIR := deploy
 TERRAFORM_DIR := $(DEPLOY_DIR)/terraform
 SECRETS_DIR := $(DEPLOY_DIR)/secrets
@@ -58,7 +59,7 @@ watch-frontend:
 	mkdir -p $(ARTIFACT_DIR)/$(env)/static
 	$(WEBPACK_CMD) --watch
 
-build: build-webserver build-frontend
+build: build-webserver build-frontend build-assets
 
 build-webserver:
 	rm -rf $(ARTIFACT_DIR)/$(env)/webserver
@@ -66,22 +67,30 @@ build-webserver:
 	$(BUILD_CMD) -o $(ARTIFACT_DIR)/$(env)/webserver ./cmd/webserver
 
 build-frontend:
-	rm -rf $(ARTIFACT_DIR)/$(env)/static
+	rm -rf $(ARTIFACT_DIR)/$(env)/static/js
+	rm -f $(ARTIFACT_DIR)/$(env)/static/index.html
 	mkdir -p $(ARTIFACT_DIR)/$(env)/static
 	$(WEBPACK_CMD)
 
+build-assets:
+	mkdir -p $(ARTIFACT_DIR)/$(env)/static
+	cp $(ASSETS_DIR)/* $(ARTIFACT_DIR)/$(env)/static
+
 # Runs locally, but simulates the environment that would be deployed
 # Will not work in envs other than local if local machine is not the same os as deploy machines
-run:
+run: decrypt-secrets-config
 	$(ARTIFACT_DIR)/$(env)/webserver $(DEPLOY_DIR)/files/$(env)/etc/bg-mentor
 
-decrypt-secrets-deploy:
+decrypt-secrets-config:
 	@mkdir -p $(DECRYPTED_SECRETS_DIR)/$(env)
 ifeq ("","$(wildcard $(CONFIG_DIR)/config.json)")
-	@echo "Decrypting Deploy Configuration Secrets. You'll need permission."
+	@echo "Decrypting Configuration Secrets. You'll need permission."
 	@ansible-vault decrypt $(CONFIG_DIR)/config.json.secret --output $(CONFIG_DIR)/config.json
 	@(sleep 1800 && rm -rf $(CONFIG_DIR)/config.json &)
 endif
+
+decrypt-secrets-deploy:
+	@mkdir -p $(DECRYPTED_SECRETS_DIR)/$(env)
 ifeq ("","$(wildcard $(DECRYPTED_SECRETS_DIR)/$(env)/deploy-key.pem)")
 	@echo "Decrypting Deploy Secrets. You'll need permission."
 	@ansible-vault decrypt $(SECRETS_DIR)/$(env)/deploy-key.pem.secret --output $(DECRYPTED_SECRETS_DIR)/$(env)/deploy-key.pem
@@ -119,5 +128,5 @@ baseline-db:
 migrate-db:
 	flyway -user="$(MIGRATION_USER)" -locations="filesystem:$(shell pwd)/deploy/db/migrations" -url='jdbc:mysql://127.0.0.1:3307/$(DB_NAME)' migrate
 
-deploy: decrypt-secrets-deploy
+deploy: decrypt-secrets-deploy decrypt-secrets-config
 	./scripts/deploy.sh $(env)

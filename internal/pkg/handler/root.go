@@ -10,9 +10,10 @@ import (
 
 type RootHandler struct {
 	StaticFileRoot string
-	StatusHandler  *StatusHandler
-	StaticHandler  *StaticHandler
-	AuthHandler    *AuthHandler
+	StatusHandler  http.Handler
+	StaticHandler  http.Handler
+	AuthHandler    http.Handler
+	MemberHandler  http.Handler
 }
 
 func (h *RootHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
@@ -22,6 +23,8 @@ func (h *RootHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	switch head {
 	case "":
 		http.ServeFile(res, req, fmt.Sprintf("%s/index.html", h.StaticFileRoot))
+	case "favicon.ico":
+		http.ServeFile(res, req, fmt.Sprintf("%s/favicon.ico", h.StaticFileRoot))
 	case "static":
 		h.StaticHandler.ServeHTTP(res, req)
 		return
@@ -31,6 +34,8 @@ func (h *RootHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	case "auth":
 		h.AuthHandler.ServeHTTP(res, req)
 		return
+	case "member":
+		h.MemberHandler.ServeHTTP(res, req)
 	default:
 		RespondJSON("Root", http.StatusNotFound, requesterror.PathNotFound("Root", head, req), res)
 		return
