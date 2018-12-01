@@ -79,10 +79,10 @@ const Disclaimer = styled.div`
   overflow: hidden;
 `
 
-const MenuTile = ({ name, link, image,  disclaimer, className }) => (
-  <MenuTileArea className={className}>
+const MenuTile = ({ name, link, image, isExternal, disclaimer, className }) => (
+  <MenuTileArea className={className} onClick={() => link ? open(link, isExternal ? undefined : "_self") : undefined}>
     <Name>{name}</Name>
-    <CallToAction imageUrl={image} onClick={() => link ? open(link, "_self") : undefined} />
+    <CallToAction imageUrl={image} />
     {disclaimer ? <Disclaimer>{disclaimer}</Disclaimer> : null}
   </MenuTileArea>
 )

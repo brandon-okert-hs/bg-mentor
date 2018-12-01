@@ -7,7 +7,6 @@ import UserWelcome from "./userwelcome"
 import MenuTiles from "./menutiles"
 
 const MainMenu = styled.div`
-  background: "#efefef";
   height: 100%;
 
   display: flex;
@@ -22,14 +21,16 @@ export default ({ loggedInMember }) => {
 
   const tiles = [{
     name: "Discord",
-    link: undefined,
+    link: "http://discord.gg/x7jewJq",
     image: "/static/discord_logo.png",
-    disclaimer: "Coming Soon!"
+    isExternal: true,
+    disclaimer: undefined
   }, {
     name: "Liquipedia",
     image: "/static/liquipedia_logo.png",
-    link: undefined,
-    disclaimer: "Coming Soon!"
+    link: "https://liquipedia.net/starcraft2/User:Morbis/Born_Gosu",
+    isExternal: true,
+    disclaimer: undefined
   }, {
     name: "Tournaments",
     image: "/static/challonge_logo.png",

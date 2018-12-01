@@ -9,11 +9,14 @@ import (
 )
 
 type RootHandler struct {
-	StaticFileRoot string
-	StatusHandler  http.Handler
-	StaticHandler  http.Handler
-	AuthHandler    http.Handler
-	MemberHandler  http.Handler
+	StaticFileRoot    string
+	StatusHandler     http.Handler
+	StaticHandler     http.Handler
+	AuthHandler       http.Handler
+	MemberHandler     http.Handler
+	UnitHandler       http.Handler
+	TournamentHandler http.Handler
+	DABEntryHandler   http.Handler
 }
 
 func (h *RootHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
@@ -36,6 +39,12 @@ func (h *RootHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		return
 	case "member":
 		h.MemberHandler.ServeHTTP(res, req)
+	case "unit":
+		h.UnitHandler.ServeHTTP(res, req)
+	case "tournament":
+		h.TournamentHandler.ServeHTTP(res, req)
+	case "dabEntry":
+		h.DABEntryHandler.ServeHTTP(res, req)
 	default:
 		RespondJSON("Root", http.StatusNotFound, requesterror.PathNotFound("Root", head, req), res)
 		return

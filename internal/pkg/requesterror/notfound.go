@@ -49,3 +49,15 @@ func MethodNotFound(handler, head string, req *http.Request) []byte {
 }
 	`, handler, head, req.Method, handler, head, req.Method, req.URL.Path)))
 }
+
+// BadRequest should be used when a request side error has occurred
+func BadRequest(handler, message string, req *http.Request) []byte {
+	return []byte(strings.TrimSpace(fmt.Sprintf(`
+{
+	"message": "%s",
+	"handler": "%s",
+	"path":    "%s",
+	"method":  "%s",
+}
+	`, message, handler, req.URL.Path, req.Method)))
+}

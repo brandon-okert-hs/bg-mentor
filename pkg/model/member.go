@@ -24,13 +24,14 @@ func (m *MemberPost) Validate() error {
 }
 
 type MemberPut struct {
-	Name      string `json:"name,omitempty"`
+	Name      string `json:"name"`
+	Email     string `json:"email"`
 	AvatarURL string `json:"avatarUrl,omitempty"`
 }
 
 func (m *MemberPut) Validate() error {
-	if m.Name == "" && m.AvatarURL == "" {
-		return fmt.Errorf("Cannot update a member with no changes")
+	if m.Name == "" || m.Email == "" {
+		return fmt.Errorf("Name and email are both required for new members")
 	}
 
 	return nil

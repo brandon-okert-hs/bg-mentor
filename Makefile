@@ -55,7 +55,8 @@ coverage:
 	go test -covermode=count -coverprofile=coverage.out && go tool cover -html=coverage.out
 
 watch-frontend:
-	rm -rf $(ARTIFACT_DIR)/$(env)/static
+	rm -rf $(ARTIFACT_DIR)/$(env)/static/js
+	rm -f $(ARTIFACT_DIR)/$(env)/static/index.html
 	mkdir -p $(ARTIFACT_DIR)/$(env)/static
 	$(WEBPACK_CMD) --watch
 

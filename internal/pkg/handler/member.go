@@ -28,17 +28,17 @@ func (h *MemberHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 			output, err = h.GETMe(req)
 			if err != nil {
 				logger.Errorw("Failed to load member/me", "error", err)
-				RespondJSON("Member", http.StatusInternalServerError, requesterror.InternalError("Member", head, req), res)
+				RespondJSON("Member", http.StatusInternalServerError, requesterror.InternalError("Member", "An error occurred loading that member", req), res)
 				return
 			}
 			RespondJSON("Member", http.StatusOK, output, res)
 			return
 		default:
-			RespondJSON("Member", http.StatusNotFound, requesterror.MethodNotFound("Status", head, req), res)
+			RespondJSON("Member", http.StatusNotFound, requesterror.MethodNotFound("Member", head, req), res)
 			return
 		}
 	default:
-		RespondJSON("Member", http.StatusNotFound, requesterror.PathNotFound("Status", head, req), res)
+		RespondJSON("Member", http.StatusNotFound, requesterror.PathNotFound("Member", head, req), res)
 		return
 	}
 }
