@@ -3,7 +3,6 @@ import ReactDOM from "react-dom"
 import styled from "styled-components"
 
 import NavBar from './navbar'
-import MainMenu from './mainmenu'
 
 document.body.style.margin = 0;
 
@@ -43,10 +42,11 @@ class AppContainer extends React.Component {
   constructor() {
     super()
     this.state = {
-      loggedInMember: null
+      loggedInMember: null,
+      activeMenu: "main"
     }
 
-    fetch("api/member/me", { credentials: "include" }).then(r => {
+    fetch("member/me", { credentials: "include" }).then(r => {
       if (r.status === 200) {
         return r.json()
       }
@@ -63,7 +63,6 @@ class AppContainer extends React.Component {
     return (
       <App>
         <NavBar leftItems={leftNavItems} rightItems={rightNavItems} />
-        <MainMenu loggedInMember={this.state.loggedInMember} />
       </App>
     )
   }

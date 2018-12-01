@@ -85,17 +85,11 @@ func main() {
 			AuthConfig: &authConfig,
 			DB:         database,
 		},
-		MemberHandler: handler.Authenticated(&handler.MemberHandler{
-			DB: database,
-		}, &authConfig),
-		UnitHandler: handler.Authenticated(&handler.UnitHandler{
-			DB: database,
-		}, &authConfig),
-		TournamentHandler: handler.Authenticated(&handler.TournamentHandler{
-			DB: database,
-		}, &authConfig),
-		DABEntryHandler: handler.Authenticated(&handler.DABEntryHandler{
-			DB: database,
+		APIHandler: handler.Authenticated(&handler.APIHandler{
+			MemberHandler:     &handler.MemberHandler{DB: database},
+			UnitHandler:       &handler.UnitHandler{DB: database},
+			TournamentHandler: &handler.TournamentHandler{DB: database},
+			DABEntryHandler:   &handler.DABEntryHandler{DB: database},
 		}, &authConfig),
 	}
 	log.Fatal(http.ListenAndServe(address, rootHandler))

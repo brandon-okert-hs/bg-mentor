@@ -7,11 +7,14 @@ module.exports = (env, argv) => {
   
   return ({
     context: path.resolve(__dirname, '.'),
-    entry: './js/index.js',
+    entry: {
+      index: './js/index.js',
+      tournaments: './js/tournaments.js'
+    },
     mode: env.SERVER_ENV === 'production' ? 'production' : 'development',
     devtool: env.SERVER_ENV === 'production' ? 'source-maps' : 'eval',
     output: {
-      filename: 'static/js/main.js',
+      filename: 'static/js/[name].js',
       path: path.resolve(__dirname, '../artifact/' + env.SERVER_ENV),
       publicPath: '/'
     },
@@ -20,13 +23,6 @@ module.exports = (env, argv) => {
       maxEntrypointSize: 1200000,
       maxAssetSize: 1200000,
     },
-    plugins: [
-      new HtmlWebpackPlugin({
-        title: 'BG Mentor',
-        hash: true,
-        filename: 'static/index.html'
-      })
-    ],
     module: {
       rules: [
         {
