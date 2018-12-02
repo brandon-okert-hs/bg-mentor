@@ -9,7 +9,8 @@ module.exports = (env, argv) => {
     context: path.resolve(__dirname, '.'),
     entry: {
       index: './js/index.js',
-      tournaments: './js/tournaments.js'
+      tournaments: './js/tournaments.js',
+      tournament: './js/tournament.js'
     },
     mode: env.SERVER_ENV === 'production' ? 'production' : 'development',
     devtool: env.SERVER_ENV === 'production' ? 'source-maps' : 'eval',

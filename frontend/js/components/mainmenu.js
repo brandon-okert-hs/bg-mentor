@@ -34,7 +34,7 @@ export default ({ loggedInMember }) => {
   }, {
     name: "Tournaments",
     image: "/static/challonge_logo.png",
-    link: "/tournaments",
+    link: loggedInMember ? "/tournaments" : undefined,
     disclaimer: loggedInMember ? undefined : "Members Only"
   }, {
     name: "Mentor Program",

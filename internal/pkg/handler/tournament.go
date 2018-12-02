@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/bcokert/bg-mentor/internal/pkg/database"
 	"github.com/bcokert/bg-mentor/internal/pkg/requesterror"
@@ -42,7 +43,19 @@ func (h *TournamentHandler) ServeHTTP(res http.ResponseWriter, req *http.Request
 			return
 		}
 	default:
-		RespondJSON("Tournament", http.StatusNotFound, requesterror.PathNotFound("Tournament", head, req), res)
+		tid, err := strconv.Atoi(head)
+		if err != nil {
+			logger.Infow("Failed trying to load tournament", "error", err, "tournamentId", tid)
+			RespondJSON("Tournament", http.StatusBadRequest, requesterror.BadRequest("Tournament", "Tournament id must be an integer", req), res)
+			return
+		}
+		output, err = h.GETX(tid)
+		if err != nil {
+			logger.Errorw("Failed to load tournament", "error", err, "tournamentId", tid)
+			RespondJSON("Tournament", http.StatusInternalServerError, requesterror.InternalError("Tournament", "An error occurred getting that tournament", req), res)
+			return
+		}
+		RespondJSON("Tournament", http.StatusOK, output, res)
 		return
 	}
 }
@@ -54,6 +67,15 @@ func (h *TournamentHandler) GET() ([]byte, error) {
 	}
 
 	return json.Marshal(tournaments)
+}
+
+func (h *TournamentHandler) GETX(tournamentID int) ([]byte, error) {
+	tournament, err := h.DB.GetTournament(tournamentID)
+	if err != nil {
+		return nil, err
+	}
+
+	return json.Marshal(tournament)
 }
 
 func (h *TournamentHandler) POST(w http.ResponseWriter, r *http.Request) {

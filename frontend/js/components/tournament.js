@@ -92,7 +92,7 @@ const Logo = styled.img`
   box-sizing: border-box;
 `
 
-export default ({ creator, name, logoLink, startDate, checkinDate, type = "custom", entries = [] }) => {
+export default ({ onClick, creator, name, logoLink, startDate, checkinDate, type = "custom", entries = [] }) => {
 
   let start = ""
   let checkin = ""
@@ -113,7 +113,7 @@ export default ({ creator, name, logoLink, startDate, checkinDate, type = "custo
   }
 
   return (
-    <Tournament>
+    <Tournament onClick={onClick} >
       <Logo src={logoLink || "/static/borngosu_logo.png"} />
       <DetailBoxContainer>
         <DetailBox>

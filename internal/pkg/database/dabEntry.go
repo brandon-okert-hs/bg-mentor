@@ -22,6 +22,7 @@ func populateDABEntryFromRow(rows *sql.Rows, t *model.DABEntry) error {
 		&t.ID,
 		&t.TournamentID,
 		&t.IsLocked,
+		&t.Config.ID,
 		&optMember1,
 		&optMember1Race,
 		&optMember1NumBans,
@@ -113,6 +114,7 @@ func (db *Database) GetDABEntry(id int) (*model.DABEntry, error) {
 		tournament_entries.id,
 		tournament_entries.tournamentID,
 		tournament_entries.isLocked,
+		tournament_entries.configId,
 
 		dab_configs.member1,
 		dab_configs.member1Race,
@@ -161,6 +163,7 @@ func (db *Database) GetDABEntries(tournamentID int) ([]model.DABEntry, error) {
 		tournament_entries.id,
 		tournament_entries.tournamentID,
 		tournament_entries.isLocked,
+		tournament_entries.configId,
 
 		dab_configs.member1,
 		dab_configs.member1Race,
@@ -211,7 +214,7 @@ func (db *Database) CreateDABEntry(tournamentID int, post *model.DABEntryPost) (
 		return nil, err
 	}
 
-	query := "INSERT INTO dab_configs values ()"
+	query := "INSERT INTO dab_configs (member1Race, member2Race, member1NumBans, member2NumBans) values (zerg, zerg, 0, 0)" // TODO: fix these columns so they can't be null
 	res, err := db.Execute(query)
 	if err != nil {
 		return nil, fmt.Errorf("Database error creating a dab config for an entry: %s", err)

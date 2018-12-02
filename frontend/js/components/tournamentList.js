@@ -18,7 +18,7 @@ const TournamentList = styled.div`
 
 export default ({ tournaments }) => (
   <TournamentList>
-    {tournaments.map((t, i) => <Tournament key={i} {...t} />)}
+    {tournaments.map((t, i) => <Tournament onClick={() => open(`/tournaments/${t.id}`, "_self")} key={t.id} {...t} />)}
     {tournaments.length === 0 ? <Loader /> : undefined}
   </TournamentList>
 )

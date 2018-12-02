@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/bcokert/bg-mentor/internal/pkg/requesterror"
@@ -43,7 +44,13 @@ func (h *RootHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	case "":
 		fmt.Fprintf(res, pageHTML, "Born Gosu Gaming", "index", hash)
 	case "tournaments":
-		fmt.Fprintf(res, pageHTML, "Tournaments", "tournaments", hash)
+		head, req.URL.Path = request.ShiftURL(req.URL.Path)
+		tid, err := strconv.Atoi(head)
+		if head == "" || err != nil {
+			fmt.Fprintf(res, pageHTML, "Tournaments", "tournaments", hash)
+			return
+		}
+		fmt.Fprintf(res, pageHTML, fmt.Sprintf("Tournament %d", tid), "tournament", hash)
 	case "favicon.ico":
 		http.ServeFile(res, req, fmt.Sprintf("%s/favicon.ico", h.StaticFileRoot))
 	case "static":
