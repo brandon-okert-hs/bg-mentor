@@ -3,6 +3,7 @@ import ReactDOM from "react-dom"
 import styled from "styled-components"
 import missingAvatar from "../image/missingavatar"
 
+import Loader from './basiccomponents/loader'
 import Tournament from "./tournament"
 
 const TournamentList = styled.div`
@@ -15,10 +16,9 @@ const TournamentList = styled.div`
   align-items: center;
 `
 
-export default ({ tournaments }) => {
-  return (
-    <TournamentList>
-      {tournaments.map((t, i) => <Tournament key={i} {...t} />)}
-    </TournamentList>
-  )
-}
+export default ({ tournaments }) => (
+  <TournamentList>
+    {tournaments.map((t, i) => <Tournament key={i} {...t} />)}
+    {tournaments.length === 0 ? <Loader /> : undefined}
+  </TournamentList>
+)
