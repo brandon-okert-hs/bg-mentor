@@ -46,7 +46,7 @@ class AppContainer extends React.Component {
     super()
     this.state = {
       loggedInMember: null,
-      tournaments: [],
+      tournaments: undefined,
     }
 
     fetch("/api/member/me", { credentials: "include" }).then(r => {
@@ -107,7 +107,7 @@ class AppContainer extends React.Component {
     return (
       <App>
         <NavBar />
-        <TournamentList tournaments={this.state.tournaments} />
+        <TournamentList tournaments={this.state.tournaments || []} isLoading={!Array.isArray(this.state.tournaments)} />
       </App>
     )
   }

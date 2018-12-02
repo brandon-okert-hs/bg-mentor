@@ -35,10 +35,11 @@ info "cleanup past deploy failures"
 ssh -T -i .secrets-decrypted/${ENV}/deploy-key.pem ${HOST} <<-EOF
 rm -rf ~/artifact
 rm -rf ~/files
+mkdir ~/artifact
 EOF
 
 info "copy over new artifacts and files to server"
-scp -i .secrets-decrypted/${ENV}/deploy-key.pem -r artifact ${HOST}:~/artifact
+scp -i .secrets-decrypted/${ENV}/deploy-key.pem -r artifact/${ENV} ${HOST}:~/artifact/${ENV}
 scp -i .secrets-decrypted/${ENV}/deploy-key.pem -r deploy/files ${HOST}:~/files
 
 info "stop service, and remove old artifact"
