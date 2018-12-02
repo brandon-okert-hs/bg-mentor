@@ -10,7 +10,7 @@ import {
   COLOR_UI,
   COLOR_UI_HOVER,
   COLOR_UI_ACTIVE,
-} from "../colors"
+} from "../../colors"
 
 export const BUTTON_TYPE_PRIMARY = "BUTTON_TYPE_PRIMARY"
 export const BUTTON_TYPE_SECONDARY = "BUTTON_TYPE_SECONDARY"
@@ -46,6 +46,8 @@ export default styled.div`
   cursor: none;
 
   background: ${p => typeToDefaultColor(p.type)};
+
+  border-bottom: ${p => p.selected ? "4px" : "0px"} solid ${COLOR_COMPLIMENT};
 
   &:hover {
     cursor: pointer;

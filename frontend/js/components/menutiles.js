@@ -2,7 +2,7 @@ import React from "react"
 import ReactDOM from "react-dom"
 import styled from "styled-components"
 
-import { COLOR_PRIMARY, COLOR_COMPLIMENT, COLOR_COMPLIMENT_HOVER } from "./colors"
+import { COLOR_PRIMARY, COLOR_COMPLIMENT, COLOR_COMPLIMENT_HOVER } from "../colors"
 
 const MenuTiles = styled.div`
   display: flex;

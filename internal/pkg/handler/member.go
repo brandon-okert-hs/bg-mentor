@@ -22,6 +22,21 @@ func (h *MemberHandler) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	var err error
 
 	switch head {
+	case "":
+		switch req.Method {
+		case http.MethodGet:
+			output, err = h.GET(req)
+			if err != nil {
+				logger.Errorw("Failed to load member/", "error", err)
+				RespondJSON("Member", http.StatusInternalServerError, requesterror.InternalError("Member", "An error occurred loading members", req), res)
+				return
+			}
+			RespondJSON("Member", http.StatusOK, output, res)
+			return
+		default:
+			RespondJSON("Member", http.StatusNotFound, requesterror.MethodNotFound("Member", head, req), res)
+			return
+		}
 	case "me":
 		switch req.Method {
 		case http.MethodGet:
@@ -56,4 +71,13 @@ func (h *MemberHandler) GETMe(r *http.Request) ([]byte, error) {
 	}
 
 	return json.Marshal(member)
+}
+
+func (h *MemberHandler) GET(r *http.Request) ([]byte, error) {
+	members, err := h.DB.GetMembers()
+	if err != nil {
+		return nil, err
+	}
+
+	return json.Marshal(members)
 }

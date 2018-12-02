@@ -20,8 +20,8 @@ module.exports = (env, argv) => {
     },
     performance: {
       hints: 'error',
-      maxEntrypointSize: 1200000,
-      maxAssetSize: 1200000,
+      maxEntrypointSize: 1800000,
+      maxAssetSize: 1800000,
     },
     module: {
       rules: [

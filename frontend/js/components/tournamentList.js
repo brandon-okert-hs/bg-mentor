@@ -1,0 +1,24 @@
+import React from "react"
+import ReactDOM from "react-dom"
+import styled from "styled-components"
+import missingAvatar from "../image/missingavatar"
+
+import Tournament from "./tournament"
+
+const TournamentList = styled.div`
+  height: 100%;
+  width: 100%;
+
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+  align-items: center;
+`
+
+export default ({ tournaments }) => {
+  return (
+    <TournamentList>
+      {tournaments.map((t, i) => <Tournament key={i} {...t} />)}
+    </TournamentList>
+  )
+}

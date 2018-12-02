@@ -1,7 +1,7 @@
 import React from "react"
 import ReactDOM from "react-dom"
 import styled from "styled-components"
-import missingAvatar from "./image/missingavatar"
+import missingAvatar from "../image/missingavatar"
 
 import UserWelcome from "./userwelcome"
 import MenuTiles from "./menutiles"
@@ -34,8 +34,8 @@ export default ({ loggedInMember }) => {
   }, {
     name: "Tournaments",
     image: "/static/challonge_logo.png",
-    link: undefined,
-    disclaimer: loggedInMember ? "Coming Soon!" : "Members Only"
+    link: "/tournaments",
+    disclaimer: loggedInMember ? undefined : "Members Only"
   }, {
     name: "Mentor Program",
     image: "/static/grandmaster_logo.png",

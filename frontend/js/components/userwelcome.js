@@ -2,7 +2,7 @@ import React from "react"
 import ReactDOM from "react-dom"
 import styled from "styled-components"
 
-import { COLOR_PRIMARY } from "./colors"
+import { COLOR_PRIMARY } from "../colors"
 
 const UserWelcome = styled.div`
   background: ${COLOR_PRIMARY};

@@ -3,7 +3,26 @@ import ReactDOM from "react-dom"
 import styled from "styled-components"
 
 import Button, { BUTTON_TYPE_SECONDARY, BUTTON_TYPE_PRIMARY } from "./basiccomponents/button"
-import { COLOR_UI } from './colors'
+import { COLOR_UI, COLOR_COMPLIMENT } from '../colors'
+
+const leftNavItems = [{
+  name: "Born Gosu Gaming",
+  url: "/",
+  image: "/static/borngosu_logo.png",
+}, {
+  name: "Tournaments",
+  url: "/tournaments",
+  image: "/static/challonge_logo.png",
+}]
+const rightNavItems = [{
+  name: "Login",
+  url: "/auth/login",
+  image: "",
+}, {
+  name: "Logout",
+  url: "/auth/logout",
+  image: "",
+}]
 
 const Navbar = styled.div`
   display: flex;
@@ -20,12 +39,13 @@ const NavIcon = styled.img`
   margin-right: 4px;
 `
 
-export default ({ rightItems = [], leftItems = [] }) => {
-  const leftItemList = leftItems.map(item =>
+export default () => {
+  const leftItemList = leftNavItems.map(item =>
     <Button
       key={item.name}
       onClick={() => open(item.url, "_self")}
       type={BUTTON_TYPE_PRIMARY}
+      selected={window.location.pathname === item.url}
       height="40px"
     >
       {item.image ? <NavIcon src={item.image} /> : null}
@@ -33,7 +53,7 @@ export default ({ rightItems = [], leftItems = [] }) => {
     </Button> 
   )
 
-  const rightItemList = rightItems.map((item, i) =>
+  const rightItemList = rightNavItems.map((item, i) =>
     <Button
       key={item.name}
       style={i === 0 ? {"marginLeft": "auto"} : {}}

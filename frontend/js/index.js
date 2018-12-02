@@ -2,8 +2,8 @@ import React from "react"
 import ReactDOM from "react-dom"
 import styled from "styled-components"
 
-import NavBar from './navbar'
-import MainMenu from './mainmenu'
+import NavBar from './components/navbar'
+import MainMenu from './components/mainmenu'
 
 document.body.style.margin = 0;
 
@@ -23,21 +23,6 @@ const app = document.createElement('div')
 app.style.width = "100vw"
 app.style.height = "100vh"
 document.body.appendChild(app)
-
-const leftNavItems = [{
-  name: "Born Gosu Gaming",
-  url: "/",
-  image: "/static/borngosu_logo.png",
-}]
-const rightNavItems = [{
-  name: "Login",
-  url: "/auth/login",
-  image: "",
-}, {
-  name: "Logout",
-  url: "/auth/logout",
-  image: "",
-}]
 
 class AppContainer extends React.Component {
   constructor() {
@@ -62,7 +47,7 @@ class AppContainer extends React.Component {
   render() {
     return (
       <App>
-        <NavBar leftItems={leftNavItems} rightItems={rightNavItems} />
+        <NavBar />
         <MainMenu loggedInMember={this.state.loggedInMember} />
       </App>
     )

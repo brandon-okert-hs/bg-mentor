@@ -136,7 +136,7 @@ func (db *Database) GetDABEntry(id int) (*model.DABEntry, error) {
 		dab_configs.member2Ban6,
 		dab_configs.member2Confirmed
 
-		FROM tournament_entries LEFT JOIN dab_configs
+		FROM tournament_entries INNER JOIN dab_configs
 		ON tournament_entries.configId = dab_configs.id
 		AND tournament_entries.id = ?;`, "\n", " ", 100), "\t", " ", 1000)
 	rows, err := db.Query(query, id)
@@ -184,7 +184,7 @@ func (db *Database) GetDABEntries(tournamentID int) ([]model.DABEntry, error) {
 		dab_configs.member2Ban6,
 		dab_configs.member2Confirmed
 
-		FROM tournament_entries LEFT JOIN dab_configs
+		FROM tournament_entries INNER JOIN dab_configs
 		ON tournament_entries.configId = dab_configs.id
 		AND tournament_entries.tournamentID = ?;`, "\n", " ", 100), "\t", " ", 1000)
 
