@@ -1,5 +1,8 @@
 # bg-mentor
 
+## DEPRECATED
+Deprecated in favor of https://github.com/bcokert/born-gosu-gaming
+
 Webserver, client interface, admin interface, and db for born gosu mentor-mentee mactching service
 
 [Changelog](CHANGELOG.md)
